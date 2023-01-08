@@ -1,0 +1,218 @@
+zabbix_export:
+  version: '6.0'
+  date: '2023-01-08T08:58:52Z'
+  groups:
+    -
+      uuid: 7df96b18c230490a9a0a9e2307226338
+      name: Templates
+  templates:
+    -
+      uuid: ca5bf31fa8bb487686dde03f6aeb97d4
+      template: Kurs_Linux
+      name: Kurs_Linux
+      templates:
+        -
+          name: 'Linux network interfaces by Zabbix agent'
+      groups:
+        -
+          name: Templates
+      items:
+        -
+          uuid: 11db1773fc71452e93c6046600912e83
+          name: 'Zabbix agent ping'
+          key: agent.ping
+          history: 7d
+          description: 'The agent always returns 1 for this item. It could be used in combination with nodata() for availability check.'
+          tags:
+            -
+              tag: component
+              value: system
+          triggers:
+            -
+              uuid: 3620522e072649388b9c26304aa73e45
+              expression: 'last(/Kurs_Linux/agent.ping,#3)<1'
+              name: 'Niedostepny Agent Zabbix'
+              priority: AVERAGE
+        -
+          uuid: 662c7bf80bfd4c42ae0d73d65fd81832
+          name: 'ICMP ping'
+          type: SIMPLE
+          key: icmpping
+          history: 1w
+          tags:
+            -
+              tag: component
+              value: health
+            -
+              tag: component
+              value: network
+          triggers:
+            -
+              uuid: 550d66c2ecdd4b829994f87c0b77cdee
+              expression: 'last(/Kurs_Linux/icmpping,#3)<1'
+              name: 'Niedostepny Host'
+              priority: AVERAGE
+        -
+          uuid: b44bd184821c4dbe908ffce4897101a1
+          name: 'Load average (5m avg)'
+          key: 'system.cpu.load[all,avg5]'
+          history: 7d
+          value_type: FLOAT
+          tags:
+            -
+              tag: component
+              value: cpu
+          triggers:
+            -
+              uuid: d6bb657fccc04c99b188d186754f6e64
+              expression: 'avg(/Kurs_Linux/system.cpu.load[all,avg5],300)>0.8'
+              name: 'CPU powyzej 80%'
+              priority: AVERAGE
+        -
+          uuid: 0cf40767abb4496c98931aa11f7e2f25
+          name: 'CPU iowait time'
+          key: 'system.cpu.util[,iowait]'
+          history: 7d
+          value_type: FLOAT
+          units: '%'
+          description: 'Amount of time the CPU has been waiting for I/O to complete.'
+          tags:
+            -
+              tag: component
+              value: cpu
+        -
+          uuid: 2ac6ff9434c74a1da1ca7c6d6c7c2e5b
+          name: 'CPU system time'
+          key: 'system.cpu.util[,system]'
+          history: 7d
+          value_type: FLOAT
+          units: '%'
+          description: 'The time the CPU has spent running the kernel and its processes.'
+          tags:
+            -
+              tag: component
+              value: cpu
+        -
+          uuid: 94cf577cc6864f6ba0aa73f9b414b505
+          name: 'CPU user time'
+          key: 'system.cpu.util[,user]'
+          history: 7d
+          value_type: FLOAT
+          units: '%'
+          description: 'The time the CPU has spent running users'' processes that are not niced.'
+          tags:
+            -
+              tag: component
+              value: cpu
+        -
+          uuid: 5b3585eef1384f68a769a444bd4a1af2
+          name: 'Zużycie dysku /'
+          key: 'vfs.fs.size[/,pused]'
+          delay: 5m
+          value_type: FLOAT
+          tags:
+            -
+              tag: component
+              value: disk
+          triggers:
+            -
+              uuid: 58b6ccb0063b4800a1d2bf8c2c419539
+              expression: 'avg(/Kurs_Linux/vfs.fs.size[/,pused],300)>80'
+              name: 'Zużycie dysku / powyżej 80%'
+              priority: AVERAGE
+        -
+          uuid: 8e03ed24305b45beb12f9b7b8e8b05d5
+          name: 'Zużycie dysku /boot'
+          key: 'vfs.fs.size[/boot,pused]'
+          delay: 5m
+          value_type: FLOAT
+          tags:
+            -
+              tag: component
+              value: disk
+        -
+          uuid: cda7f41ba5c443f6aa0d7bf256466821
+          name: 'Available memory'
+          key: 'vm.memory.size[available]'
+          history: 7d
+          units: B
+          description: 'Available memory, in Linux, available = free + buffers + cache. On other platforms calculation may vary. See also Appendixes in Zabbix Documentation about parameters of the vm.memory.size item.'
+          tags:
+            -
+              tag: component
+              value: memory
+        -
+          uuid: fd31b5383c134f08810ce72f0f3d90c2
+          name: 'Available memory in %'
+          key: 'vm.memory.size[pavailable]'
+          history: 7d
+          value_type: FLOAT
+          units: '%'
+          description: 'Available memory as percentage of total. See also Appendixes in Zabbix Documentation about parameters of the vm.memory.size item.'
+          tags:
+            -
+              tag: component
+              value: memory
+          triggers:
+            -
+              uuid: f2922285effb4391bffa9e8fe86e7177
+              expression: 'avg(/Kurs_Linux/vm.memory.size[pavailable],300)<20'
+              name: 'Pamięć poniżej 20%'
+              priority: AVERAGE
+        -
+          uuid: df5edbb52cbe412d936c5576a33316a6
+          name: 'Total memory'
+          key: 'vm.memory.size[total]'
+          history: 7d
+          units: B
+          description: 'Total memory in Bytes'
+          tags:
+            -
+              tag: component
+              value: memory
+  graphs:
+    -
+      uuid: 1cb013791c8447c4867f4510a05d3d11
+      name: 'Agent Ping'
+      graph_items:
+        -
+          color: 1A7C11
+          item:
+            host: Kurs_Linux
+            key: agent.ping
+    -
+      uuid: f8cf719c9f2a46b5a9e38f265633b03f
+      name: 'Dostępna Pamięć w %'
+      graph_items:
+        -
+          color: 00FF00
+          item:
+            host: Kurs_Linux
+            key: 'vm.memory.size[pavailable]'
+    -
+      uuid: b53997759fe64c948d730dcdba44cd88
+      name: Icmping
+      graph_items:
+        -
+          color: 1A7C11
+          item:
+            host: Kurs_Linux
+            key: icmpping
+    -
+      uuid: 2650d2a6fcca467e895f2eab0a47cfba
+      name: 'Obciążenie CPU'
+      graph_items:
+        -
+          color: 1A7C11
+          item:
+            host: Kurs_Linux
+            key: 'system.cpu.load[all,avg5]'
+    -
+      uuid: 2a730ea1f2654146ac810969b685a1ce
+      name: 'Zużycie dysku /'
+      graph_items:
+        -
+          color: 1A7C11
+          item:
+            host: Kurs_Linux
+            key: 'vfs.fs.size[/,pused]'
